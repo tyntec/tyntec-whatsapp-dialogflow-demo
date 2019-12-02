@@ -1,6 +1,4 @@
-import { ProductMock } from './types';
-
-export const products: ProductMock[] = [
+const products = [
   {
     category: 'shoes',
     name: 'Nice Sports Shoes',
@@ -50,3 +48,7 @@ export const products: ProductMock[] = [
     price: 25,
   },
 ];
+
+module.exports = {
+  products,
+};

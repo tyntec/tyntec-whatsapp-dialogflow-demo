@@ -1,7 +1,6 @@
-import { MessageResponse, DialogflowResponse } from './types';
-import { products } from './mocks';
+const { products } = require('./mocks');
 
-export const trendsHandler = (response: DialogflowResponse): MessageResponse => {
+const trendsHandler = (response) => {
   if (response.queryResult.allRequiredParamsPresent) {
     return {
       text: response.queryResult.fulfillmentText,
@@ -18,4 +17,8 @@ export const trendsHandler = (response: DialogflowResponse): MessageResponse => 
       text: response.queryResult.fulfillmentText,
     };
   }
+};
+
+module.exports = {
+  trendsHandler,
 };
