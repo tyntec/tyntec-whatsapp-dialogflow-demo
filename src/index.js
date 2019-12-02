@@ -1,19 +1,15 @@
-import * as express from 'express';
-import { ValidatedRequest, createValidator } from 'express-joi-validation';
-import * as dialogflow from 'dialogflow';
-import { messageSchema } from './schemas';
-import { sendWhatsappTextMessage, sendWhatsappImage } from './tyntec';
-import { readFileSync } from 'fs';
-import { Config, MessageRequestSchema, DialogflowResponse, MessageResponse } from './types';
-import { trendsHandler } from './trendsIntent';
-import { availabilityHandler } from './availabilityIntent';
-import { priceHandler } from './priceIntent';
+const express = require('express');
+const { createValidator } = require('express-joi-validation');
+const dialogflow = require('dialogflow');
+const { messageSchema } = require('./schemas');
+const whatsappClient = require('./tyntec');
+const { trendsHandler } = require('./trendsIntent');
+const { availabilityHandler } = require('./availabilityIntent');
+const { priceHandler } = require('./priceIntent');
+const config = require('../config.json');
 
-export const config: Config = JSON.parse(readFileSync('./config.json').toString());
 
-const app = express();
-
-const messageHandler = async (req: ValidatedRequest<MessageRequestSchema>, res: express.Response) => {
+const messageHandler = async (req, res) => {
   try {
     const projectId = config.projectId;
     const sessionId = req.body.from;
@@ -30,9 +26,8 @@ const messageHandler = async (req: ValidatedRequest<MessageRequestSchema>, res: 
       },
     };
 
-    const result = await sessionClient.detectIntent(request) as DialogflowResponse[];
-    console.log(`Result: ${require('util').inspect(result, false, 15)}`);
-    let response: MessageResponse;
+    const result = await sessionClient.detectIntent(request);
+    let response;
 
     switch (result[0].queryResult.action) {
       case 'fashion.trends':
@@ -57,14 +52,14 @@ const messageHandler = async (req: ValidatedRequest<MessageRequestSchema>, res: 
     if (config.debug) {
       console.log(require('util').inspect(response, false, 15));
     } else {
-      await sendWhatsappTextMessage({
+      await whatsappClient.sendWhatsappTextMessage({
         from: req.body.to,
         to: req.body.from,
         text: response.text,
       });
       if (response.pictures) {
         for (const picture of response.pictures) {
-          await sendWhatsappImage({
+          await whatsappClient.sendWhatsappImage({
             from: req.body.to,
             to: req.body.from,
             media: picture,
@@ -82,7 +77,11 @@ const messageHandler = async (req: ValidatedRequest<MessageRequestSchema>, res: 
 }
 
 const validator = createValidator();
-
+const app = express();
 app.use(express.json());
 app.post('/callback/message', validator.body(messageSchema), messageHandler);
 app.listen(config.port, () => console.log(`Server listening on port ${config.port}.`));
+
+module.exports = {
+  config,
+};

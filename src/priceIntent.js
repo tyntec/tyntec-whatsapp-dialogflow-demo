@@ -1,7 +1,6 @@
-import { MessageResponse, DialogflowResponse } from './types';
-import { products } from './mocks';
+const { products } = require('./mocks');
 
-export const priceHandler = (response: DialogflowResponse): MessageResponse => {
+const priceHandler = response => {
   if (response.queryResult.allRequiredParamsPresent) {
     const price = products.find(product => (
       product.name.toLowerCase() === response.queryResult.parameters.fields.product.stringValue
@@ -16,4 +15,6 @@ export const priceHandler = (response: DialogflowResponse): MessageResponse => {
   }
 };
 
-
+module.exports = {
+  priceHandler,
+};

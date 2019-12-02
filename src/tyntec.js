@@ -1,7 +1,7 @@
-import axios from 'axios';
-import { config } from '.';
+const axios = require('axios');
+const config = require('../config.json');
 
-export const sendWhatsappTextMessage = async (params: { from: string, to: string, text: string }) => {
+const sendWhatsappTextMessage = async params => {
   const request = {
     to: params.to,
     channels: ['whatsapp'],
@@ -15,7 +15,7 @@ export const sendWhatsappTextMessage = async (params: { from: string, to: string
   return axios.post(`${config.tyntecBaseUrl}/messages`, request, { headers: { apikey: config.tyntecApikey } });
 }
 
-export const sendWhatsappImage = async (params: { from: string, to: string, media: any }) => {
+const sendWhatsappImage = async params => {
   const request = {
     to: params.to,
     channels: ['whatsapp'],
@@ -28,3 +28,8 @@ export const sendWhatsappImage = async (params: { from: string, to: string, medi
 
   return axios.post(`${config.tyntecBaseUrl}/messages`, request, { headers: { apikey: config.tyntecApikey } });
 }
+
+module.exports = {
+  sendWhatsappTextMessage,
+  sendWhatsappImage,
+};
